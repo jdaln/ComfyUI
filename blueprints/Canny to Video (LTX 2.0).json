@@ -169,7 +169,7 @@
         null,
         null,
         false,
-        "ltx-2-19b-dev-fp8.safetensors",
+          "ltx-2-19b-dev.safetensors",
         "ltx-2-19b-ic-lora-canny-control.safetensors",
         "gemma_3_12B_it_fp4_mixed.safetensors",
         "ltx-2-19b-distilled-lora-384.safetensors",
@@ -2568,8 +2568,8 @@
               "Node name for S&R": "CheckpointLoaderSimple",
               "models": [
                 {
-                  "name": "ltx-2-19b-dev-fp8.safetensors",
-                  "url": "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-19b-dev-fp8.safetensors",
+                    "name": "ltx-2-19b-dev.safetensors",
+                    "url": "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-19b-dev.safetensors",
                   "directory": "checkpoints"
                 }
               ],
@@ -2582,7 +2582,7 @@
               "secondTabWidth": 65
             },
             "widgets_values": [
-              "ltx-2-19b-dev-fp8.safetensors"
+              "ltx-2-19b-dev.safetensors"
             ]
           },
           {
@@ -2645,8 +2645,8 @@
               "Node name for S&R": "LTXAVTextEncoderLoader",
               "models": [
                 {
-                  "name": "ltx-2-19b-dev-fp8.safetensors",
-                  "url": "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-19b-dev-fp8.safetensors",
+                    "name": "ltx-2-19b-dev.safetensors",
+                    "url": "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-19b-dev.safetensors",
                   "directory": "checkpoints"
                 },
                 {
@@ -2665,7 +2665,7 @@
             },
             "widgets_values": [
               "gemma_3_12B_it_fp4_mixed.safetensors",
-              "ltx-2-19b-dev-fp8.safetensors",
+              "ltx-2-19b-dev.safetensors",
               "default"
             ]
           },
@@ -2869,7 +2869,7 @@
               "Node name for S&R": "LTXVAudioVAELoader"
             },
             "widgets_values": [
-              "ltx-2-19b-dev-fp8.safetensors"
+              "ltx-2-19b-dev.safetensors"
             ]
           }
         ],
