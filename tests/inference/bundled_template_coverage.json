@@ -1,0 +1,477 @@
+{
+  "version": 1,
+  "blueprint_root": "blueprints",
+  "defaults": {
+    "status": "todo",
+    "smoke": {
+      "enabled": false,
+      "api_graph": null,
+      "expected_output": null,
+      "fixtures": []
+    },
+    "prerequisites": {
+      "asset_profiles": [],
+      "custom_nodes": [],
+      "gated_repos": [],
+      "external_services": [],
+      "manual_models": []
+    }
+  },
+  "entries": {
+    "Brightness and Contrast.json": {
+      "status": "blocked",
+      "block_reason": "Uses GLSLShader and currently fails in this container because no OpenGL or EGL or OSMesa context can be created.",
+      "notes": [
+        "A tracked repro graph exists, but the current runtime image cannot create an OpenGL context for GLSLShader execution.",
+        "Fixing this lane requires runtime OpenGL backend support rather than only a prompt-graph change."
+      ]
+    },
+    "Canny to Image (Z-Image-Turbo).json": {
+      "prerequisites": {
+        "asset_profiles": [
+          "z-image-turbo-union-control"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is z-image-turbo-union-control.",
+        "This workflow still needs a companion API graph before smoke validation."
+      ]
+    },
+    "Canny to Video (LTX 2.0).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/ltx20_canny_to_video_smoke.json",
+        "expected_output": "video",
+        "fixtures": [
+          "example.png"
+        ]
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "ltx-2.0-iclora-all-bundled"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is ltx-2.0-iclora-all-bundled.",
+        "Bundled defaults were normalized to the current non-fp8 dev checkpoint filename and matched to the file-based Gemma text encoder these templates expect.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The smoke graph reuses the compact LTX family shape with the LTX 2.0 dev checkpoint, distilled LoRA, and canny-control LoRA."
+      ]
+    },
+    "Depth to Video (ltx 2.0).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/ltx20_depth_to_video_smoke.json",
+        "expected_output": "video",
+        "fixtures": [
+          "example.png"
+        ]
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "ltx-2.0-iclora-all-bundled",
+          "lotus-depth-support"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profiles are ltx-2.0-iclora-all-bundled and lotus-depth-support.",
+        "Bundled defaults were normalized to the current non-fp8 dev checkpoint filename and matched to the file-based Gemma text encoder these templates expect.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The smoke graph reuses the compact LTX family shape and generates its depth guide with the proven Lotus API subgraph before applying the LTX 2.0 depth-control LoRA."
+      ]
+    },
+    "Depth to Image (Z-Image-Turbo).json": {
+      "prerequisites": {
+        "asset_profiles": [
+          "z-image-turbo-union-control",
+          "lotus-depth-support"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profiles are z-image-turbo-union-control and lotus-depth-support.",
+        "This workflow still needs a companion API graph before smoke validation."
+      ]
+    },
+    "Text to Video (LTX-2.3).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/ltx23_text_to_video_smoke.json",
+        "expected_output": "video",
+        "fixtures": [
+          "example.png"
+        ]
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "ltx-2.3-t2v-i2v-two-stage-distilled"
+        ]
+      },
+      "notes": [
+        "Validated container-only via the tracked direct /prompt smoke graph."
+      ]
+    },
+    "Image to Video (LTX-2.3).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/ltx23_image_to_video_smoke.json",
+        "expected_output": "video",
+        "fixtures": [
+          "example.png"
+        ]
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "ltx-2.3-t2v-i2v-two-stage-distilled"
+        ]
+      },
+      "notes": [
+        "Blueprint defaults were updated to the canonical checkpoint and distilled LoRA filenames.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The smoke graph reuses the proven LTX-2.3 family shape and flips the existing image-conditioning bypass for a compact example.png-driven run."
+      ]
+    },
+    "First-Last-Frame to Video (LTX-2.3).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/ltx23_first_last_frame_to_video_smoke.json",
+        "expected_output": "video",
+        "fixtures": [
+          "example.png"
+        ]
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "ltx-2.3-t2v-i2v-two-stage-distilled"
+        ]
+      },
+      "notes": [
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The direct smoke reuses example.png for both the first and last frame so the lane can be validated with the shared fixture set.",
+        "The smoke graph exercises LTXVAddGuide at frame 0 and frame -1 while staying within the existing compact LTX-2.3 validation envelope."
+      ]
+    },
+    "Crop Images 2x2.json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/crop_images_2x2_smoke.json",
+        "expected_output": "image",
+        "fixtures": [
+          "example.png"
+        ]
+      },
+      "notes": [
+        "Validated container-only via the tracked direct /prompt smoke graph."
+      ]
+    },
+    "Image Edit (Qwen 2511).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/qwen_image_edit_2511_smoke.json",
+        "expected_output": "image",
+        "fixtures": [
+          "example.png"
+        ]
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "qwen-image-edit-2511-core"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is qwen-image-edit-2511-core.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The smoke graph uses the edit-specific TextEncodeQwenImageEditPlus path with example.png as a single reference image so the lane stays compact while still exercising the dedicated edit checkpoint."
+      ]
+    },
+    "Image Inpainting (Qwen-image).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/qwen_image_inpainting_smoke.json",
+        "expected_output": "image",
+        "fixtures": [
+          "example.png"
+        ]
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "qwen-image-inpaint-lightning-4step"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is qwen-image-inpaint-lightning-4step.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The smoke graph uses the InstantX inpainting controlnet with a generated full-image mask so the lane can be validated without adding a dedicated binary mask fixture."
+      ]
+    },
+    "Image Outpainting (Qwen-Image).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/qwen_image_outpainting_smoke.json",
+        "expected_output": "image",
+        "fixtures": [
+          "example.png"
+        ]
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "qwen-image-inpaint-lightning-4step"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is qwen-image-inpaint-lightning-4step.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The smoke graph uses ImagePadForOutpaint and composites the generated result back over the padded canvas so the lane stays self-contained around example.png."
+      ]
+    },
+    "Image Upscale(Z-image-Turbo).json": {
+      "prerequisites": {
+        "asset_profiles": [
+          "z-image-turbo-core"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is z-image-turbo-core.",
+        "This workflow still needs a companion API graph before smoke validation."
+      ]
+    },
+    "Pose to Video (LTX 2.0).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/ltx20_pose_to_video_smoke.json",
+        "expected_output": "video",
+        "fixtures": [
+          "example.png"
+        ]
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "ltx-2.0-iclora-all-bundled"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is ltx-2.0-iclora-all-bundled.",
+        "Bundled defaults were normalized to the current non-fp8 dev checkpoint filename and matched to the file-based Gemma text encoder these templates expect.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The smoke graph reuses the compact LTX family shape with the LTX 2.0 dev checkpoint, distilled LoRA, and pose-control LoRA."
+      ]
+    },
+    "Pose to Image (Z-Image-Turbo).json": {
+      "prerequisites": {
+        "asset_profiles": [
+          "z-image-turbo-union-control"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is z-image-turbo-union-control.",
+        "This workflow still needs a companion API graph before smoke validation."
+      ]
+    },
+    "Prompt Enhance.json": {
+      "status": "blocked",
+      "block_reason": "Uses GeminiNode and therefore requires external Gemini service credentials and a service-backed validation path.",
+      "prerequisites": {
+        "external_services": [
+          "gemini"
+        ]
+      },
+      "notes": [
+        "This template is not purely local; it routes through GeminiNode for prompt expansion."
+      ]
+    },
+    "Text to Audio (ACE-Step 1.5).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/ace_step_text_to_audio_smoke.json",
+        "expected_output": "audio",
+        "fixtures": []
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "ace-step-1.5-core"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is ace-step-1.5-core.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The live smoke produced a FLAC artifact through SaveAudio and recorded it in ComfyUI history."
+      ]
+    },
+    "Text to Image (Qwen-Image 2512).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/qwen_image_2512_text_to_image_smoke.json",
+        "expected_output": "image",
+        "fixtures": []
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "qwen-image-2512-t2i-lightning-4step"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is qwen-image-2512-t2i-lightning-4step.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The smoke graph mirrors the compact Qwen family text-to-image shape but switches to the 2512 checkpoint and 4-step lightning LoRA."
+      ]
+    },
+    "Text to Image (Qwen-Image).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/qwen_image_text_to_image_smoke.json",
+        "expected_output": "image",
+        "fixtures": []
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "qwen-image-t2i-lightning-8step"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is qwen-image-t2i-lightning-8step.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The smoke runner now uniquifies filename_prefix inputs so repeated executions keep recording fresh output artifacts."
+      ]
+    },
+    "Text to Image (Z-Image-Turbo).json": {
+      "prerequisites": {
+        "asset_profiles": [
+          "z-image-turbo-core"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is z-image-turbo-core.",
+        "This workflow still needs a companion API graph before smoke validation."
+      ]
+    },
+    "Text to Video (Wan 2.2).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/wan22_text_to_video_smoke.json",
+        "expected_output": "video"
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "wan2.2-t2v-bundled"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is wan2.2-t2v-bundled.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The smoke graph uses VHS_VideoCombine and a reduced 320x320x9 clip so the lane remains practical to validate on this host."
+      ]
+    },
+    "Image to Video (Wan 2.2).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/wan22_image_to_video_smoke.json",
+        "expected_output": "video",
+        "fixtures": [
+          "example.png"
+        ]
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "wan2.2-i2v-bundled"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is wan2.2-i2v-bundled.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The smoke graph uses VHS_VideoCombine and a reduced 320x320x9 clip so the lane remains practical to validate on this host."
+      ]
+    },
+    "Image to Depth Map (Lotus).json": {
+      "status": "validated",
+      "smoke": {
+        "enabled": true,
+        "api_graph": "tests/inference/graphs/lotus_depth_smoke.json",
+        "expected_output": "image",
+        "fixtures": [
+          "example.png"
+        ]
+      },
+      "prerequisites": {
+        "asset_profiles": [
+          "lotus-depth-support"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is lotus-depth-support.",
+        "Validated container-only via the tracked direct /prompt smoke graph.",
+        "The Lotus depth asset must live under diffusion_models for the bundled blueprint and the direct smoke graph to resolve the checkpoint correctly."
+      ]
+    },
+    "Image Captioning (gemini).json": {
+      "status": "blocked",
+      "block_reason": "Requires external Gemini service credentials and a service-backed validation path.",
+      "prerequisites": {
+        "external_services": [
+          "gemini"
+        ]
+      },
+      "notes": [
+        "Kept in scope but blocked until service-backed validation is wired."
+      ]
+    },
+    "Image to Model (Hunyuan3d 2.1).json": {
+      "prerequisites": {
+        "asset_profiles": [
+          "hunyuan3d-2.1-core"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is hunyuan3d-2.1-core.",
+        "This workflow still needs a companion API graph before smoke validation."
+      ]
+    },
+    "Image to Layers(Qwen-Image-Layered).json": {
+      "prerequisites": {
+        "asset_profiles": [
+          "qwen-image-layered-core"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is qwen-image-layered-core.",
+        "This workflow still needs a companion API graph before smoke validation."
+      ]
+    },
+    "Video Captioning (Gemini).json": {
+      "status": "blocked",
+      "block_reason": "Requires external Gemini service credentials and a service-backed validation path.",
+      "prerequisites": {
+        "external_services": [
+          "gemini"
+        ]
+      },
+      "notes": [
+        "Kept in scope but blocked until service-backed validation is wired."
+      ]
+    },
+    "Video Inpaint(Wan2.1 VACE).json": {
+      "prerequisites": {
+        "asset_profiles": [
+          "wan2.1-vace-bundled"
+        ]
+      },
+      "notes": [
+        "The exact bootstrap profile is wan2.1-vace-bundled.",
+        "This template also requires video, mask, and reference-image fixtures in addition to the Wan 2.1 VACE model set."
+      ]
+    }
+  }
+}
