@@ -1,0 +1,206 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "example.png"
+    }
+  },
+  "2": {
+    "class_type": "GetImageSize",
+    "inputs": {
+      "image": [
+        "1",
+        0
+      ]
+    }
+  },
+  "3": {
+    "class_type": "PrimitiveInt",
+    "inputs": {
+      "value": 2
+    }
+  },
+  "4": {
+    "class_type": "ComfyMathExpression",
+    "inputs": {
+      "expression": "max(1, int(a/b))",
+      "values.a": [
+        "2",
+        0
+      ],
+      "values.b": [
+        "3",
+        0
+      ]
+    }
+  },
+  "5": {
+    "class_type": "ComfyMathExpression",
+    "inputs": {
+      "expression": "max(1, int(a/b))",
+      "values.a": [
+        "2",
+        1
+      ],
+      "values.b": [
+        "3",
+        0
+      ]
+    }
+  },
+  "6": {
+    "class_type": "PrimitiveBoundingBox",
+    "inputs": {
+      "x": 0,
+      "y": 0,
+      "width": [
+        "4",
+        1
+      ],
+      "height": [
+        "5",
+        1
+      ]
+    }
+  },
+  "7": {
+    "class_type": "ImageCropV2",
+    "inputs": {
+      "image": [
+        "1",
+        0
+      ],
+      "crop_region": [
+        "6",
+        0
+      ]
+    }
+  },
+  "8": {
+    "class_type": "PrimitiveBoundingBox",
+    "inputs": {
+      "x": 0,
+      "y": [
+        "5",
+        1
+      ],
+      "width": [
+        "4",
+        1
+      ],
+      "height": [
+        "5",
+        1
+      ]
+    }
+  },
+  "9": {
+    "class_type": "ImageCropV2",
+    "inputs": {
+      "image": [
+        "1",
+        0
+      ],
+      "crop_region": [
+        "8",
+        0
+      ]
+    }
+  },
+  "10": {
+    "class_type": "PrimitiveBoundingBox",
+    "inputs": {
+      "x": [
+        "4",
+        1
+      ],
+      "y": 0,
+      "width": [
+        "4",
+        1
+      ],
+      "height": [
+        "5",
+        1
+      ]
+    }
+  },
+  "11": {
+    "class_type": "ImageCropV2",
+    "inputs": {
+      "image": [
+        "1",
+        0
+      ],
+      "crop_region": [
+        "10",
+        0
+      ]
+    }
+  },
+  "12": {
+    "class_type": "PrimitiveBoundingBox",
+    "inputs": {
+      "x": [
+        "4",
+        1
+      ],
+      "y": [
+        "5",
+        1
+      ],
+      "width": [
+        "4",
+        1
+      ],
+      "height": [
+        "5",
+        1
+      ]
+    }
+  },
+  "13": {
+    "class_type": "ImageCropV2",
+    "inputs": {
+      "image": [
+        "1",
+        0
+      ],
+      "crop_region": [
+        "12",
+        0
+      ]
+    }
+  },
+  "14": {
+    "class_type": "BatchImagesNode",
+    "inputs": {
+      "images.image0": [
+        "7",
+        0
+      ],
+      "images.image1": [
+        "9",
+        0
+      ],
+      "images.image2": [
+        "11",
+        0
+      ],
+      "images.image3": [
+        "13",
+        0
+      ]
+    }
+  },
+  "15": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "14",
+        0
+      ],
+      "filename_prefix": "smoke/crop_images_2x2"
+    }
+  }
+}
