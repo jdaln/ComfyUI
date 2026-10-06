@@ -139,11 +139,12 @@ def save_glb(vertices, faces, filepath=None, metadata=None,
     emissive_image: PIL.Image - Optional emissive (glow) texture, written as emissiveTexture.
     """
 
-    # Convert tensors to numpy arrays
-    vertices_np = vertices.cpu().numpy().astype(np.float32)
+    # Convert tensors to numpy arrays. float() first: a VAE run in bf16 (--bf16-vae)
+    # hands over bf16 attributes, and numpy has no bf16.
+    vertices_np = vertices.cpu().float().numpy()
     faces_signed = faces.cpu().numpy().astype(np.int64)
-    uvs_np = uvs.cpu().numpy().astype(np.float32) if uvs is not None else None
-    colors_np = vertex_colors.cpu().numpy().astype(np.float32) if vertex_colors is not None else None
+    uvs_np = uvs.cpu().float().numpy() if uvs is not None else None
+    colors_np = vertex_colors.cpu().float().numpy() if vertex_colors is not None else None
     if colors_np is not None:
         colors_np = np.clip(colors_np, 0.0, 1.0)
 
@@ -166,12 +167,12 @@ def save_glb(vertices, faces, filepath=None, metadata=None,
             f"save_glb: vertex_colors has {colors_np.shape[0]} entries but vertex count is {n_verts}"
         )
 
-    normals_np = normals.cpu().numpy().astype(np.float32) if normals is not None else None
+    normals_np = normals.cpu().float().numpy() if normals is not None else None
     if normals_np is not None and normals_np.shape[0] != n_verts:
         raise ValueError(
             f"save_glb: normals has {normals_np.shape[0]} entries but vertex count is {n_verts}"
         )
-    tangents_np = tangents.cpu().numpy().astype(np.float32) if tangents is not None else None
+    tangents_np = tangents.cpu().float().numpy() if tangents is not None else None
     if tangents_np is not None and tangents_np.shape != (n_verts, 4):
         raise ValueError(
             f"save_glb: tangents must be (N, 4) with N={n_verts}, got {tuple(tangents_np.shape)}"
@@ -505,7 +506,7 @@ def mesh_item_to_glb_bytes(mesh, index, metadata=None):
         t = getattr(mesh, attr, None)
         if t is None:
             return None
-        a = (t[index].clamp(0.0, 1.0).cpu().numpy() * 255).astype(np.uint8)
+        a = (t[index].clamp(0.0, 1.0).cpu().float().numpy() * 255).astype(np.uint8)
         assert a.ndim == 3 and a.shape[-1] == 3, f"{attr} must be (B, H, W, 3), got {tuple(t.shape)}"
         return Image.fromarray(a, mode="RGB")
 
