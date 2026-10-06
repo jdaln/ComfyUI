@@ -1312,6 +1312,8 @@ def bake_texture_from_voxel_fn(vertices, faces, voxel_coords, voxel_colors,
         if pbar is not None:
             pbar.update(1)
 
+    # A VAE run in bf16 (--bf16-vae) hands over bf16 voxel attributes; numpy has no bf16.
+    voxel_colors = voxel_colors.float()
     v_np = vertices.detach().cpu().numpy().astype(np.float32)
     f_np = faces.detach().cpu().numpy().astype(np.uint32)
 
