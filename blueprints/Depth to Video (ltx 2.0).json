@@ -340,7 +340,8 @@
             "name": "image_2",
             "type": "IMAGE",
             "linkIds": [
-              410
+              410,
+              417
             ],
             "label": "first frame",
             "pos": [
@@ -392,7 +393,8 @@
             "type": "COMBO",
             "linkIds": [
               425,
-              433
+              433,
+              377
             ],
             "pos": [
               -2584.69140625,
@@ -3277,7 +3279,6 @@
                 "type": "IMAGE",
                 "links": [
                   416,
-                  417,
                   418
                 ]
               }
@@ -4064,7 +4065,7 @@
           {
             "id": 377,
             "origin_id": -10,
-            "origin_slot": 6,
+            "origin_slot": 8,
             "target_id": 96,
             "target_slot": 0,
             "type": "COMBO"
@@ -4119,8 +4120,8 @@
           },
           {
             "id": 417,
-            "origin_id": 190,
-            "origin_slot": 0,
+            "origin_id": -10,
+            "origin_slot": 4,
             "target_id": 149,
             "target_slot": 1,
             "type": "IMAGE"
