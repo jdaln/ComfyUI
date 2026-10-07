@@ -115,6 +115,13 @@ class CustomNodeManager:
     def add_routes(self, routes, webapp, loadedModules):
 
         example_workflow_folder_names = ["example_workflows", "example", "examples", "workflow", "workflows"]
+        workflow_dirs = {}  # custom node -> its served example workflow folders
+
+        def example_workflow_categories() -> dict[str, dict[str, list[str]]]:
+            """Category -> custom node -> template names, from the JSON file named by
+            COMFY_CUSTOM_NODE_EXAMPLE_WORKFLOWS_CATEGORIES. Read on every request, so
+            edits show on the next page load."""
+            return safe_load_json_file(os.getenv("COMFY_CUSTOM_NODE_EXAMPLE_WORKFLOWS_CATEGORIES", ""))
 
         @routes.get("/workflow_templates")
         async def get_workflow_templates(request):
@@ -146,7 +153,37 @@ class CustomNodeManager:
                 workflow_templates_dict.setdefault(custom_nodes_name, []).append(
                     workflow_name
                 )
-            return web.json_response(workflow_templates_dict)
+
+            # The frontend lists every key under Extensions as if it were a custom
+            # node, so a category can gather templates from several of them.
+            # Templates no category claims stay under their custom node.
+            grouped = {}
+            for category, modules in example_workflow_categories().items():
+                for module_name, names in modules.items():
+                    available = workflow_templates_dict.get(module_name, [])
+                    for name in names:
+                        if name in available:
+                            available.remove(name)
+                            grouped.setdefault(category, []).append(name)
+            for module_name, names in workflow_templates_dict.items():
+                if names:
+                    grouped[module_name] = names
+            return web.json_response(grouped)
+
+        @routes.get("/workflow_templates/{category}/{filename}")
+        async def get_categorized_workflow_template(request):
+            name, ext = os.path.splitext(request.match_info["filename"])
+            if ext not in (".json", ".jpg"):
+                return web.Response(status=404)
+            modules = example_workflow_categories().get(request.match_info["category"], {})
+            for module_name, names in modules.items():
+                if name not in names:
+                    continue
+                for workflows_dir in workflow_dirs.get(module_name, []):
+                    path = os.path.join(workflows_dir, name + ext)
+                    if os.path.isfile(path):
+                        return web.FileResponse(path)
+            return web.Response(status=404)
 
         # Serve workflow templates from custom nodes.
         for module_name, module_dir in loadedModules:
@@ -169,6 +206,7 @@ class CustomNodeManager:
                             )
                         ]
                     )
+                    workflow_dirs.setdefault(module_name, []).append(workflows_dir)
 
         @routes.get("/i18n")
         async def get_i18n(request):
