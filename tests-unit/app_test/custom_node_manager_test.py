@@ -222,3 +222,70 @@ async def test_build_translations_merges_multiple_extensions(
                 "shared": "Override",  # Second extension should override first
             }
         }
+
+
+async def test_get_workflow_templates_categories(
+    aiohttp_client, app, tmp_path, monkeypatch
+):
+    client = await aiohttp_client(app)
+    custom_nodes_dir = tmp_path / "custom_nodes"
+
+    ext1_dir = custom_nodes_dir / "ComfyUI-TestExtension1" / "example_workflows"
+    ext2_dir = custom_nodes_dir / "ComfyUI-TestExtension2" / "example_workflows"
+    ext1_dir.mkdir(parents=True)
+    ext2_dir.mkdir(parents=True)
+    (ext1_dir / "workflow1.json").write_text("")
+    (ext1_dir / "workflow3.json").write_text("")
+    (ext2_dir / "workflow2.json").write_text("")
+    categories = tmp_path / "categories.json"
+    categories.write_text(json.dumps({
+        "1-image": {
+            "ComfyUI-TestExtension1": ["workflow1", "missing"],
+            "ComfyUI-TestExtension2": ["workflow2"],
+        }
+    }))
+
+    monkeypatch.setenv("COMFY_CUSTOM_NODE_MODULES_ALLOWLIST", "true")
+    monkeypatch.setenv("COMFY_CUSTOM_NODE_EXAMPLE_WORKFLOWS_CATEGORIES", str(categories))
+
+    with patch(
+        "folder_paths.folder_names_and_paths",
+        {"custom_nodes": ([str(custom_nodes_dir)], None)},
+    ):
+        response = await client.get("/workflow_templates")
+        assert response.status == 200
+        assert await response.json() == {
+            "1-image": ["workflow1", "workflow2"],
+            "ComfyUI-TestExtension1": ["workflow3"],
+        }
+
+
+async def test_get_categorized_workflow_template(aiohttp_client, tmp_path, monkeypatch):
+    workflows_dir = tmp_path / "ComfyUI-TestExtension1" / "example_workflows"
+    workflows_dir.mkdir(parents=True)
+    (workflows_dir / "workflow1.json").write_text('{"nodes": []}')
+    (workflows_dir / "workflow1.jpg").write_bytes(b"jpg")
+    (workflows_dir / "workflow2.json").write_text("{}")
+    categories = tmp_path / "categories.json"
+    categories.write_text(json.dumps({"1-image": {"ComfyUI-TestExtension1": ["workflow1"]}}))
+
+    monkeypatch.setenv("COMFY_CUSTOM_NODE_MODULES_ALLOWLIST", "true")
+    monkeypatch.setenv("COMFY_CUSTOM_NODE_EXAMPLE_WORKFLOWS_CATEGORIES", str(categories))
+
+    app = web.Application()
+    routes = web.RouteTableDef()
+    CustomNodeManager().add_routes(
+        routes, app, [("ComfyUI-TestExtension1", str(tmp_path / "ComfyUI-TestExtension1"))]
+    )
+    app.add_routes(routes)
+    client = await aiohttp_client(app)
+
+    response = await client.get("/workflow_templates/1-image/workflow1.json")
+    assert response.status == 200
+    assert await response.text() == '{"nodes": []}'
+    assert (await client.get("/workflow_templates/1-image/workflow1.jpg")).status == 200
+    # only templates the category lists, and only workflows and thumbnails
+    assert (await client.get("/workflow_templates/1-image/workflow2.json")).status == 404
+    assert (await client.get("/workflow_templates/1-image/..%2Fworkflow2.json")).status == 404
+    assert (await client.get("/workflow_templates/1-image/workflow1.png")).status == 404
+    assert (await client.get("/workflow_templates/2-video/workflow1.json")).status == 404
